@@ -1,8 +1,8 @@
 // Configuration de la scène, de la caméra et du renderer
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, 960 / 540, 0.1, 1000);  // Ratio d'aspect ajusté
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(960, 540);  // Taille fixe pour correspondre à la section
+renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('globe-container').appendChild(renderer.domElement);
 
 // Ajout d'un globe avec texture
@@ -46,7 +46,7 @@ animate();
 
 // Réajustement de la taille du rendu en cas de redimensionnement de la fenêtre
 window.addEventListener('resize', () => {
-    camera.aspect = 960 / 540;  // Ratio d'aspect pour la section
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(960, 540);
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
