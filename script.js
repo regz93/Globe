@@ -37,7 +37,7 @@ scene.add(ambientLight);
 // Fonction d'animation
 function animate() {
     requestAnimationFrame(animate);
-    globe.rotation.y += 0.001;  // Vitesse de rotation du globe
+    globe.rotation.y += 0.010;  // Vitesse de rotation du globe
     renderer.render(scene, camera);
 }
 
