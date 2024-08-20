@@ -5,14 +5,23 @@ body, html {
     height: 100%;
     overflow: hidden;
     font-family: Arial, sans-serif;
-    background-color: #000;
+    background-color: #fff;
 }
 
 #globe-container {
     width: 100vw;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff;
+    position: relative;
+    background-color: #000; /* Arrière-plan noir pour bien voir le globe */
+}
+
+.title {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff; /* Couleur du texte en blanc pour contraste */
+    z-index: 10;
 }
