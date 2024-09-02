@@ -5,27 +5,63 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('globe-container').appendChild(renderer.domElement);
 
+// Point de départ fixe (Paris)
+const startLat = 48.869241005215;
+const startLng = 2.347723973146;
+
 // Ajout d'un globe avec une texture de la Terre
 const globe = new ThreeGlobe()
     .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // Texture de la Terre
-    .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png') // Topologie de la Terre
-    .arcsData([
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: 43.6045, endLng: 1.4442, color: 'red' },    // Paris -> Toulouse
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: 45.7640, endLng: 4.8357, color: 'red' },    // Paris -> Lyon
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: 44.8378, endLng: -0.5792, color: 'red' },   // Paris -> Bordeaux
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: 43.2965, endLng: 5.3698, color: 'red' },    // Paris -> Marseille
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: 50.6292, endLng: 3.0573, color: 'red' }     // Paris -> Lille
-    ])
-    .arcColor('color')
-    .arcAltitude(0.2)
-    .arcStroke(0.5)
-    .arcDashLength(0.3)
-    .arcDashGap(2)
-    .arcDashInitialGap(0.3)
-    .arcDashAnimateTime(2000);
+    .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png'); // Topologie de la Terre
 
-// Ajout du globe à la scène
-scene.add(globe);
+// Fonction pour ajouter un point sur une coordonnée géographique
+function addPointOnGlobe(lat, lng, color = 0x000000, size = 1) {
+    // Convertir les coordonnées géographiques en coordonnées 3D
+    const pointCoords = globe.getCoords(lat, lng);
+    
+    // Créer une sphère pour représenter le point
+    const pointGeometry = new THREE.SphereGeometry(size, 32, 32); // Taille du point
+    const pointMaterial = new THREE.MeshBasicMaterial({ color: color }); // Couleur du point
+    const point = new THREE.Mesh(pointGeometry, pointMaterial);
+    
+    // Positionner le point sur le globe
+    point.position.set(pointCoords.x, pointCoords.y, pointCoords.z);
+    scene.add(point);
+}
+
+// Fonction pour ajouter un arc depuis Paris à une autre destination
+function addArc(startLat, startLng, endLat, endLng, color = 0xff0000) {
+    const arcData = {
+        startLat: startLat,
+        startLng: startLng,
+        endLat: endLat,
+        endLng: endLng,
+        color: color
+    };
+
+    globe.arcsData([arcData])
+        .arcColor('color')
+        .arcAltitude(0.2)
+        .arcStroke(0.5)
+        .arcDashLength(0.3)
+        .arcDashGap(2)
+        .arcDashInitialGap(0.3)
+        .arcDashAnimateTime(2000);
+
+    // Ajouter un point noir à la destination
+    addPointOnGlobe(endLat, endLng, 0x000000, 1.5);
+}
+
+// Récupérer les données externes
+fetch('path_to_your_data/points.json')
+    .then(response => response.json())
+    .then(data => {
+        // Pour chaque destination dans les données, ajouter un arc et un point sur le globe
+        data.forEach(point => {
+            addArc(startLat, startLng, point.lat, point.lng, parseInt(point.color));
+        });
+    })
+    .catch(error => console.error('Erreur lors de la récupération des données:', error));
 
 // Positionnement de la caméra pour zoomer sur l'Europe
 camera.position.set(5, 100, 100); // Ajustez la position de la caméra pour se concentrer sur l'Europe
