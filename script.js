@@ -48,7 +48,7 @@ async function initializeGlobe() {
 
     // Ajout d'un globe avec une texture de la Terre et les arcs
     globe = new ThreeGlobe()
-        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // Texture de la Terre
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-map.jpg') // Texture de la Terre
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png') // Topologie de la Terre
         .arcsData(arcsData)
         .arcColor('color')
