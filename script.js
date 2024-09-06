@@ -26,7 +26,7 @@ async function initializeGlobe() {
 
     // Données des arcs
     const arcsData = [
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: lap, endLng: lng, color: 'green' },    // Paris -> Destination
+        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: lap, endLng: lng, color: 'blue' },    // Paris -> Destination
     ];
 
     // Fonction pour ajouter un point noir à un point géographique
@@ -38,7 +38,7 @@ async function initializeGlobe() {
 
         // Créer un point noir avec une petite sphère
         const pointGeometry = new THREE.SphereGeometry(0.3, 15, 15); // Taille du point
-        const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x545e79 }); // Couleur noir
+        const pointMaterial = new THREE.MeshBasicMaterial({ color: FFFFFF }); // Couleur noir
         const point = new THREE.Mesh(pointGeometry, pointMaterial);
         
         // Positionner le point sur le globe
