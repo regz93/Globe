@@ -51,22 +51,23 @@ function showMap(lat, lng, data) {
     if (destinationMarker) {
         map.removeLayer(destinationMarker);
     }
- // Formater la phrase avec les données du JSON (utilisation de template literals)
- const popupText = `Hey ! J'ai commandé ${data[15][1]} produits pour ${data[14][1]} euros depuis ${data[17][1]}. Je suis un ${data[16][1]} client.`;
 
+    // Formater la phrase avec les données du JSON (utilisation de template literals)
+    const popupText = `Hey ! J'ai commandé ${data[15][1]} produits pour ${data[14][1]} euros depuis ${data[17][1]}. Je suis un ${data[16][1]} client.`;
 
-
-    destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup(popupText).openPopup();
+    // Ajouter un marqueur pour la destination avec le popup personnalisé et autoPan activé
+    destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup(popupText, { autoPan: true }).openPopup();
 
     // Tracer une ligne droite entre Paris et la destination
     routeLine = L.polyline([[startLat, startLng], [lat, lng]], { color: 'green' }).addTo(map);
 
-    // Zoomer automatiquement pour inclure Paris et la destination
+    // Zoomer automatiquement pour inclure Paris et la destination avec des bordures ajustées
     const bounds = L.latLngBounds([[startLat, startLng], [lat, lng]]);
-    map.fitBounds(bounds);
+    map.fitBounds(bounds, { padding: [50, 50] }); // Ajoute un padding pour éviter que le popup soit coupé
 
     console.log("Affichage de la carte Leaflet pour la région Île-de-France");
 }
+
 
 // Fonction pour afficher le globe avec Three.js
 function showGlobe(lat, lng) {
