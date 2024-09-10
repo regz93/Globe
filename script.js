@@ -5,60 +5,99 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('globe-container').appendChild(renderer.domElement);
 
-// Déclaration de la variable globe avant son utilisation
+// Déclaration de la variable globe et de la carte Leaflet
 let globe;
+let map;
+let parisMarker, destinationMarker, routeLine;
 
-// Fonction pour récupérer les données
-async function fetchData() {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbwOltLszBi2RPoNgBmEouIRY7U3S5VIx_C6zrow1M_ck00_FnW8AJm9FNGL8K7VBmRW/exec');
-    const data = await response.json();
+// Point de départ (Paris)
+const startLat = 48.8566;
+const startLng = 2.3522;
 
-    // Affiche les données dans la console pour examiner leur structure
-    console.log(data);
-
-    // Appeler la fonction pour afficher les données dans le conteneur
-    populateDataContainer(data);
-
-    return data;
+// Fonction pour vérifier si les coordonnées sont en Île-de-France
+function isInIleDeFrance(lat, lng) {
+    // Approximation pour l'Île-de-France
+    const isIDF = lat >= 48.0 && lat <= 49.1 && lng >= 1.5 && lng <= 3.5;
+    console.log(`Coordonnées : lat=${lat}, lng=${lng}, est en IDF : ${isIDF}`);
+    return isIDF;
 }
 
+// Fonction pour afficher une carte de l'Île-de-France avec Leaflet
+function showMap(lat, lng) {
+    const globeContainer = document.getElementById('globe-container');
+    const mapContainer = document.getElementById('map-container');
 
-// Fonction pour traiter les arcs et ajuster la caméra
-async function initializeGlobe() {
-    // Attendre les données
-    const data = await fetchData();
-    
-    // Récupération des coordonnées de l'arc (assume que les données sont au bon format)
-    const lap = parseFloat(data[13][1].split(",")[0]);
-    const lng = parseFloat(data[13][1].split(",")[1]);
+    // Masquer le globe et afficher la carte
+    globeContainer.style.display = 'none';
+    mapContainer.style.display = 'block';
 
-    // Données des arcs
-    const arcsData = [
-        { startLat: 48.869241005215, startLng: 2.347723973146, endLat: lap, endLng: lng, color: 'green' },    // Paris -> Destination
-    ];
+    // Initialiser la carte Leaflet
+    if (!map) {
+        map = L.map('map-container').setView([lat, lng], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
 
-    // Fonction pour ajouter un point noir à un point géographique
-    function addPoint(arcData) {
-        const { endLat, endLng } = arcData;
-
-        // Convertir les coordonnées géographiques en coordonnées 3D sur le globe
-        const pointCoords = globe.getCoords(endLat, endLng);
-
-        // Créer un point noir avec une petite sphère
-        const pointGeometry = new THREE.SphereGeometry(0.3, 15, 15); // Taille du point
-        const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x545e79 }); // Couleur noir
-        const point = new THREE.Mesh(pointGeometry, pointMaterial);
-        
-        // Positionner le point sur le globe
-        point.position.set(pointCoords.x, pointCoords.y, pointCoords.z);
-        scene.add(point);
+        // Ajouter le marqueur de Paris
+        parisMarker = L.marker([startLat, startLng]).addTo(map).bindPopup('Paris').openPopup();
     }
 
-    // Ajout d'un globe avec une texture de la Terre et les arcs
-    globe = new ThreeGlobe()
-        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // Texture de la Terre
-        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png') // Topologie de la Terre
-        .arcsData(arcsData)
+    // Supprimer la ligne précédente si elle existe
+    if (routeLine) {
+        map.removeLayer(routeLine);
+    }
+
+    // Ajouter un marqueur pour la destination
+    if (destinationMarker) {
+        map.removeLayer(destinationMarker);
+    }
+    destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup('Destination').openPopup();
+
+    // Tracer une ligne droite entre Paris et la destination
+    routeLine = L.polyline([[startLat, startLng], [lat, lng]], { color: 'green' }).addTo(map);
+
+    // Zoomer automatiquement pour inclure Paris et la destination
+    const bounds = L.latLngBounds([[startLat, startLng], [lat, lng]]);
+    map.fitBounds(bounds);
+
+    console.log("Affichage de la carte Leaflet pour la région Île-de-France");
+}
+
+// Fonction pour afficher le globe avec Three.js
+function showGlobe(lat, lng) {
+    const globeContainer = document.getElementById('globe-container');
+    const mapContainer = document.getElementById('map-container');
+
+    // Masquer la carte et afficher le globe
+    mapContainer.style.display = 'none';
+    globeContainer.style.display = 'block';
+
+    // Initialiser le globe s'il n'existe pas déjà
+    if (!globe) {
+        console.log("Initialisation du globe...");
+        globe = new ThreeGlobe()
+            .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // Texture de la Terre
+            .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png'); // Topologie de la Terre
+
+        scene.add(globe);
+    }
+
+    // Ajout de la lumière ambiante
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+scene.add(ambientLight);
+
+// Ajout de la lumière directionnelle pour améliorer l'éclairage
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+directionalLight.position.set(5, 3, 5); // Positionner la lumière
+scene.add(directionalLight);
+
+
+    // Ajout des arcs au globe
+    const arcsData = [
+        { startLat, startLng, endLat: lat, endLng: lng, color: 'green' }, // Paris -> Destination
+    ];
+
+    globe.arcsData(arcsData)
         .arcColor('color')
         .arcAltitude(0.2)
         .arcStroke(0.5)
@@ -67,17 +106,32 @@ async function initializeGlobe() {
         .arcDashInitialGap(0.3)
         .arcDashAnimateTime(2000);
 
-    // Ajout du globe à la scène
-    scene.add(globe);
-
-    // Ajout des points noirs pour chaque point de fin des arcs
-    arcsData.forEach(arcData => {
-        addPoint(arcData);
-    });
-
-    // Ajustement automatique de la caméra pour capturer les deux points
-    adjustCamera(arcsData[0]);
+    // Ajustement de la caméra pour capturer les deux points
+    adjustCamera(startLat, startLng, lat, lng);
 }
+
+// Fonction pour ajuster la caméra pour inclure Paris et la destination
+function adjustCamera(startLat, startLng, endLat, endLng) {
+    const midLat = (startLat + endLat) / 2;
+    const midLng = (startLng + endLng) / 2;
+
+    // Calcul de la distance entre les deux points pour ajuster le zoom
+    const distance = calculateDistance(startLat, startLng, endLat, endLng);
+
+    // Ajuster la position de la caméra en fonction de la distance
+    const zoomFactor = Math.max(distance / 1000 + 1.5, 2); // Ajuste le zoom pour éviter d'être trop près
+
+    // Conversion des coordonnées géographiques en coordonnées 3D pour la caméra
+    const centerCoords = globe.getCoords(midLat, midLng);
+
+    // Positionner la caméra avec un zoom plus adapté
+    camera.position.set(centerCoords.x * zoomFactor, centerCoords.y * zoomFactor, centerCoords.z * zoomFactor);
+
+    // Faire en sorte que la caméra regarde le centre
+    camera.lookAt(centerCoords.x, centerCoords.y, centerCoords.z);
+}
+
+
 
 // Fonction pour calculer la distance entre deux points géographiques (Haversine)
 function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -93,30 +147,20 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
     return distance;
 }
 
-// Fonction pour ajuster la caméra
-function adjustCamera(arcData) {
-    const { startLat, startLng, endLat, endLng } = arcData;
+// Fonction pour récupérer les données
+async function fetchData() {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwOltLszBi2RPoNgBmEouIRY7U3S5VIx_C6zrow1M_ck00_FnW8AJm9FNGL8K7VBmRW/exec');
+    const data = await response.json();
 
-    // Calcul du centre géographique
-    const centerLat = (startLat + endLat) / 2;
-    const centerLng = (startLng + endLng) / 2;
+    // Affiche les données dans la console pour examiner leur structure
+    console.log(data);
 
-    // Conversion du centre en coordonnées 3D
-    const centerCoords = globe.getCoords(centerLat, centerLng);
+    // Appeler la fonction pour afficher les données dans le conteneur
+    populateDataContainer(data);
 
-    // Positionner la caméra au-dessus du centre
-    camera.position.set(centerCoords.x * 1.5, centerCoords.y * 1.5, centerCoords.z * 1.5);
-
-    // Faire en sorte que la caméra regarde le centre du globe
-    camera.lookAt(centerCoords.x, centerCoords.y, centerCoords.z);
-
-    // Calculer la distance entre les deux points
-    const distance = calculateDistance(startLat, startLng, endLat, endLng);
-
-    // Ajuster la position de la caméra en fonction de la distance entre les points
-    const zoomFactor = (1 + distance / 4000); // Ajuster l'échelle de la distance
-    camera.position.multiplyScalar(zoomFactor);
+    return data;
 }
+
 // Fonction pour insérer les données dans le container #data-container
 function populateDataContainer(data) {
     const container = document.getElementById('data-container');
@@ -124,21 +168,16 @@ function populateDataContainer(data) {
     // Efface les anciennes données avant d'insérer les nouvelles
     container.innerHTML = '<h2 class="data-title">Order infos</h2>';
 
-    // Affiche la structure des données pour vérification
-    console.log('Données reçues dans populateDataContainer:', data);
-
-    // Essayer d'accéder à data[15][1] et afficher un message si les données sont présentes
     const price = document.createElement('p');
     price.textContent = `Amount: ${data[14][1]} €`;
     container.appendChild(price);
 
-        
     const products = document.createElement('p');
     products.textContent = `Products: ${data[15][1]}`;
     container.appendChild(products);
 
     const brand = document.createElement('p');
-    brand.textContent = `Brand: ${data[16][1]}`;
+    brand.textContent = `Customer type: ${data[16][1]}`;
     container.appendChild(brand);
 
     const city = document.createElement('p');
@@ -150,23 +189,28 @@ function populateDataContainer(data) {
     container.appendChild(customerType);
 }
 
+// Démarrer l'application
+async function initializeGlobe() {
+    const data = await fetchData();
 
+    const lap = parseFloat(data[13][1].split(",")[0]);
+    const lng = parseFloat(data[13][1].split(",")[1]);
 
+    if (isInIleDeFrance(lap, lng)) {
+        showMap(lap, lng);
+    } else {
+        showGlobe(lap, lng);
+    }
+}
 
-// Initialiser la scène avec les données
-initializeGlobe();
-
-// Ajout d'une lumière ambiante
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambientLight);
-
-// Fonction d'animation
+// Fonction d'animation du globe
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
 
-// Démarrage de l'animation
+// Démarrage de l'application
+initializeGlobe();
 animate();
 
 // Réajustement de la taille du rendu en cas de redimensionnement de la fenêtre
