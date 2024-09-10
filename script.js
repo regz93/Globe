@@ -23,7 +23,7 @@ function isInIleDeFrance(lat, lng) {
 }
 
 // Fonction pour afficher une carte de l'Île-de-France avec Leaflet
-function showMap(lat, lng) {
+function showMap(lat, lng, data) {
     const globeContainer = document.getElementById('globe-container');
     const mapContainer = document.getElementById('map-container');
 
@@ -39,7 +39,7 @@ function showMap(lat, lng) {
         }).addTo(map);
 
         // Ajouter le marqueur de Paris
-        parisMarker = L.marker([startLat, startLng]).addTo(map).bindPopup('Paris').openPopup();
+        parisMarker = L.marker([startLat, startLng]).addTo(map).bindPopup('Siège').openPopup();
     }
 
     // Supprimer la ligne précédente si elle existe
@@ -51,7 +51,12 @@ function showMap(lat, lng) {
     if (destinationMarker) {
         map.removeLayer(destinationMarker);
     }
-    destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup('Destination').openPopup();
+ // Formater la phrase avec les données du JSON (utilisation de template literals)
+ const popupText = `Hey ! J'ai commandé ${data[15][1]} produits pour ${data[14][1]} euros depuis ${data[17][1]}. Je suis un ${data[16][1]} client.`;
+
+
+
+    destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup(popupText).openPopup();
 
     // Tracer une ligne droite entre Paris et la destination
     routeLine = L.polyline([[startLat, startLng], [lat, lng]], { color: 'green' }).addTo(map);
@@ -197,7 +202,7 @@ async function initializeGlobe() {
     const lng = parseFloat(data[13][1].split(",")[1]);
 
     if (isInIleDeFrance(lap, lng)) {
-        showMap(lap, lng);
+        showMap(lap, lng, data);
     } else {
         showGlobe(lap, lng);
     }
