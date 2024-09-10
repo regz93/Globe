@@ -68,6 +68,8 @@ function showMap(lat, lng, data) {
     console.log("Affichage de la carte Leaflet pour la région Île-de-France");
 }
 
+// Variable pour suivre si les lumières ont déjà été ajoutées
+let lightsAdded = false;
 
 // Fonction pour afficher le globe avec Three.js
 function showGlobe(lat, lng) {
@@ -88,15 +90,20 @@ function showGlobe(lat, lng) {
         scene.add(globe);
     }
 
-    // Ajout de la lumière ambiante
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambientLight);
+    // Vérifier si les lumières ont déjà été ajoutées pour éviter leur accumulation
+    if (!lightsAdded) {
+        // Ajout de la lumière ambiante
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambientLight);
 
-// Ajout de la lumière directionnelle pour améliorer l'éclairage
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(5, 3, 5); // Positionner la lumière
-scene.add(directionalLight);
+        // Ajout de la lumière directionnelle pour améliorer l'éclairage
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 3, 5); // Positionner la lumière
+        scene.add(directionalLight);
 
+        // Marquer que les lumières ont été ajoutées
+        lightsAdded = true;
+    }
 
     // Ajout des arcs au globe
     const arcsData = [
@@ -195,18 +202,26 @@ function populateDataContainer(data) {
     container.appendChild(customerType);
 }
 
-// Démarrer l'application
+// Fonction pour démarrer l'application et mettre à jour les données régulièrement
 async function initializeGlobe() {
-    const data = await fetchData();
+    const updateData = async () => {
+        const data = await fetchData();
 
-    const lap = parseFloat(data[13][1].split(",")[0]);
-    const lng = parseFloat(data[13][1].split(",")[1]);
+        const lap = parseFloat(data[13][1].split(",")[0]);
+        const lng = parseFloat(data[13][1].split(",")[1]);
 
-    if (isInIleDeFrance(lap, lng)) {
-        showMap(lap, lng, data);
-    } else {
-        showGlobe(lap, lng);
-    }
+        if (isInIleDeFrance(lap, lng)) {
+            showMap(lap, lng, data);
+        } else {
+            showGlobe(lap, lng);
+        }
+    };
+
+    // Appel initial
+    await updateData();
+
+    // Mettre à jour les données toutes les 5 secondes (5000 ms)
+    setInterval(updateData, 5000); // Ajuste le délai si nécessaire
 }
 
 // Fonction d'animation du globe
