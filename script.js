@@ -12,8 +12,16 @@ let globe;
 async function fetchData() {
     const response = await fetch('https://script.google.com/macros/s/AKfycbwOltLszBi2RPoNgBmEouIRY7U3S5VIx_C6zrow1M_ck00_FnW8AJm9FNGL8K7VBmRW/exec');
     const data = await response.json();
+
+    // Affiche les données dans la console pour examiner leur structure
+    console.log(data);
+
+    // Appeler la fonction pour afficher les données dans le conteneur
+    populateDataContainer(data);
+
     return data;
 }
+
 
 // Fonction pour traiter les arcs et ajuster la caméra
 async function initializeGlobe() {
@@ -109,6 +117,41 @@ function adjustCamera(arcData) {
     const zoomFactor = (1 + distance / 4000); // Ajuster l'échelle de la distance
     camera.position.multiplyScalar(zoomFactor);
 }
+// Fonction pour insérer les données dans le container #data-container
+function populateDataContainer(data) {
+    const container = document.getElementById('data-container');
+
+    // Efface les anciennes données avant d'insérer les nouvelles
+    container.innerHTML = '<h2 class="data-title">Order infos</h2>';
+
+    // Affiche la structure des données pour vérification
+    console.log('Données reçues dans populateDataContainer:', data);
+
+    // Essayer d'accéder à data[15][1] et afficher un message si les données sont présentes
+    const price = document.createElement('p');
+    price.textContent = `Amount: ${data[14][1]} €`;
+    container.appendChild(price);
+
+        
+    const products = document.createElement('p');
+    products.textContent = `Products: ${data[15][1]}`;
+    container.appendChild(products);
+
+    const brand = document.createElement('p');
+    brand.textContent = `Brand: ${data[16][1]}`;
+    container.appendChild(brand);
+
+    const city = document.createElement('p');
+    city.textContent = `Location: ${data[17][1]}`;
+    container.appendChild(city);
+
+    const customerType = document.createElement('p');
+    customerType.textContent = `Channel: ${data[18][1]}`;
+    container.appendChild(customerType);
+}
+
+
+
 
 // Initialiser la scène avec les données
 initializeGlobe();
