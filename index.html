@@ -3,22 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Globe</title>
+    <title>3D Globe & Map</title>
+    
+    <!-- Lien vers le fichier CSS externe -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Leaflet stylesheets pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Styles spécifiques pour les conteneurs */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            font-family: Arial, sans-serif;
+        }
+
+        #title-container, #data-container {
+    position: absolute;
+    z-index: 10; /* Toujours au-dessus du globe et de la carte */
+    background: rgba(255, 255, 255, 0.8); /* Légèrement transparent pour voir derrière */
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#title-container {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+        .title {
+            font-size: 2em;
+            color: #333;
+        }
+
+        #data-container {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .data-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #globe-container, #map-container {
+            width: 100vw;
+            height: 100vh;
+            margin-top: 20px;
+        }
+
+        #map-container {
+            position: relative;
+        }
+    </style>
 </head>
 <body>
-    <!-- Container pour le titre principal -->
+    <!-- Container pour le titre principal (toujours visible) -->
     <div id="title-container">
         <h1 class="title">Last order placed</h1>
     </div>
 
-    <!-- Container pour les données verticales avec un titre ajouté -->
+    <!-- Container pour les données (toujours visible) -->
     <div id="data-container">
         <h2 class="data-title">Order infos</h2>
         <!-- Les données seront insérées ici dynamiquement -->
     </div>
 
+    <!-- Container pour le globe (visible selon la localisation) -->
     <div id="globe-container"></div>
+
+    <!-- Container pour la carte (visible selon la localisation) -->
+    <div id="map-container"></div>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
