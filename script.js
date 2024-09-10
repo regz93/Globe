@@ -10,15 +10,14 @@ let globe;
 let map;
 let parisMarker, destinationMarker, routeLine;
 
-// Point de départ (Bureaux à paris)
+// Point de départ (Paris)
 const startLat = 48.8696;
 const startLng = 2.3484;
 
 // Fonction pour vérifier si les coordonnées sont en Île-de-France
 function isInIleDeFrance(lat, lng) {
     // Approximation pour l'Île-de-France
-    const isIDF = lat >= 48.0 && lat <= 49.1 && lng >= 1.5 && lng <= 3.5;
-    console.log(`Coordonnées : lat=${lat}, lng=${lng}, est en IDF : ${isIDF}`);
+    const isIDF = lat >= 47.0 && lat <= 50.0 && lng >= 1.0 && lng <= 4.5;
     return isIDF;
 }
 
@@ -53,7 +52,7 @@ function showMap(lat, lng, data) {
     }
 
     // Formater la phrase avec les données du JSON (utilisation de template literals)
-    const popupText = `Hey ! J'ai commandé ${data[15][1]} produits pour ${data[14][1]} euros depuis ${data[17][1]}. Je suis un ${data[16][1]} client.`;
+    const popupText = `Hey ! Je suis un client du shop ${data[15][1]} !J'ai commandé pour ${data[14][1]} euros depuis ${data[17][1]}.`;
 
     // Ajouter un marqueur pour la destination avec le popup personnalisé et autoPan activé
     destinationMarker = L.marker([lat, lng]).addTo(map).bindPopup(popupText, { autoPan: true }).openPopup();
@@ -65,7 +64,6 @@ function showMap(lat, lng, data) {
     const bounds = L.latLngBounds([[startLat, startLng], [lat, lng]]);
     map.fitBounds(bounds, { padding: [50, 50] }); // Ajoute un padding pour éviter que le popup soit coupé
 
-    console.log("Affichage de la carte Leaflet pour la région Île-de-France");
 }
 
 // Variable pour suivre si les lumières ont déjà été ajoutées
@@ -82,7 +80,6 @@ function showGlobe(lat, lng) {
 
     // Initialiser le globe s'il n'existe pas déjà
     if (!globe) {
-        console.log("Initialisation du globe...");
         globe = new ThreeGlobe()
             .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // Texture de la Terre
             .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png'); // Topologie de la Terre
@@ -165,8 +162,6 @@ async function fetchData() {
     const response = await fetch('https://script.google.com/macros/s/AKfycbwOltLszBi2RPoNgBmEouIRY7U3S5VIx_C6zrow1M_ck00_FnW8AJm9FNGL8K7VBmRW/exec');
     const data = await response.json();
 
-    // Affiche les données dans la console pour examiner leur structure
-    console.log(data);
 
     // Appeler la fonction pour afficher les données dans le conteneur
     populateDataContainer(data);
@@ -186,7 +181,7 @@ function populateDataContainer(data) {
     container.appendChild(price);
 
     const products = document.createElement('p');
-    products.textContent = `Products: ${data[15][1]}`;
+    products.textContent = `Eshop: ${data[15][1]}`;
     container.appendChild(products);
 
     const brand = document.createElement('p');
