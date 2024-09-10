@@ -15,12 +15,12 @@ body {
 
 /* Conteneur pour le titre avec fond blanc et coins arrondis */
 #title-container {
-    position: absolute;
-    top: 20px;
+    position: fixed;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
     background-color: #ffffff; /* Fond blanc */
-    padding: 20px;
+    padding: 10%;
     border-radius: 15px; /* Coins arrondis */
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Ombre subtile */
     z-index: 10;
@@ -38,7 +38,7 @@ body {
 
 /* Conteneur vertical pour les données, légèrement descendu */
 #data-container {
-    position: absolute;
+    position: fixed;
     top: 160px; /* Ajusté en dessous du titre */
     right: 20px;
     width: 20%;
@@ -64,14 +64,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100px; /* Hauteur uniforme pour les carrés */
+    height: 10%; /* Hauteur uniforme pour les carrés */
     width: 100%; /* Largeur maximale pour occuper le container */
 }
 
 /* Style du titre du container des données */
 .data-title {
     text-align: center;
-    font-size: 3em; /* Taille du titre */
+    font-size: 4em; /* Taille du titre */
     color: #333333; /* Couleur sombre pour le titre */
     
     padding-bottom: 5%;
