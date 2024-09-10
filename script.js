@@ -10,9 +10,9 @@ let globe;
 let map;
 let parisMarker, destinationMarker, routeLine;
 
-// Point de départ (Paris)
-const startLat = 48.8566;
-const startLng = 2.3522;
+// Point de départ (Bureaux à paris)
+const startLat = 48.8696;
+const startLng = 2.3484;
 
 // Fonction pour vérifier si les coordonnées sont en Île-de-France
 function isInIleDeFrance(lat, lng) {
