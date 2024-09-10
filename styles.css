@@ -17,8 +17,7 @@ body {
 #title-container {
     position: fixed;
     top: 5%;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 5%; /* Positionné à gauche */
     background-color: #ffffff; /* Fond blanc */
     padding: 10%;
     border-radius: 15px; /* Coins arrondis */
@@ -26,6 +25,14 @@ body {
     z-index: 10;
     width: 30%; /* Largeur du container */
     text-align: center;
+    transition: opacity 1s ease-in-out; /* Transition fluide lors du changement */
+    opacity: 1;
+}
+
+/* Transition pour les éléments cachés ou visibles */
+#title-container.hidden, #data-container.hidden {
+    opacity: 0; /* Masquer progressivement */
+    visibility: hidden;
 }
 
 /* Style du titre */
@@ -49,6 +56,8 @@ body {
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Ombre subtile */
     font-size: 10px;
     z-index: 10;
+    transition: opacity 1s ease-in-out; /* Transition fluide lors du changement */
+    opacity: 1;
 }
 
 /* Style des paragraphes à l'intérieur du data-container */
@@ -73,19 +82,26 @@ body {
     text-align: center;
     font-size: 4em; /* Taille du titre */
     color: #333333; /* Couleur sombre pour le titre */
-    
     padding-bottom: 5%;
     border-bottom: 2px solid #ddd; /* Ligne séparatrice sous le titre */
 }
 
-
-/* Container pour le globe 3D */
-#globe-container {
+/* Container pour le globe 3D et la map */
+#globe-container, #map-container {
     width: 100vw;
     height: 100vh;
     position: relative;
-    background-color: #e0e0e0; /* Fond gris clair */
     z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease-in-out, visibility 0s 2s; /* Transition fluide */
+}
+
+/* Lorsque visible, rendre l'élément opaque et visible */
+#globe-container.visible, #map-container.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 1s ease-in-out;
 }
 
 /* Conteneur avec un titre, similaire au bloc counter-section */
@@ -103,25 +119,4 @@ body {
     font-size: 3.2em;
     color: #333333;
     text-align: center;
-}
-
-/* Section avec une légère animation pour attirer l'attention */
-#counter1, #counter2 {
-    font-size: 5.5em;
-    background-color: #0496e6;
-    color: #ffffff;
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
-    width: 100%;
-    box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 0.3);
-    margin-bottom: 15px;
-}
-
-#counter1 {
-    background-color: #0496e6; /* Bleu */
-}
-
-#counter2 {
-    background-color: #547e79; /* Vert */
 }
